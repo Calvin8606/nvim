@@ -848,12 +848,19 @@ require('lazy').setup({
   -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
   {
     'ellisonleao/gruvbox.nvim',
+    lazy = true,
+  },
+  {
+    'daschw/leaf.nvim',
+    lazy = false,
     priority = 1000,
     config = function()
-      require('gruvbox').setup {
+      require('leaf').setup {
         transparent_mode = true,
+        theme = 'dark',
+        contrast = 'high',
       }
-      vim.cmd.colorscheme 'gruvbox'
+      vim.cmd 'colorscheme leaf'
     end,
   },
   -- Highlight todo, notes, etc in comments
