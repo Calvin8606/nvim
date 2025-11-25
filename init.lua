@@ -856,8 +856,14 @@ require('lazy').setup({
     priority = 1000,
     config = function()
       require('leaf').setup {
+        underlineStyle = 'underline',
+        commentStyle = 'italic',
+        functionStyle = 'NONE',
+        keywordStyle = 'italic',
+        statementStyle = 'bold',
+        typeStyle = 'NONE',
+        variablebuiltinStyle = 'italic',
         transparent = true,
-        transparent_mode = true,
         theme = 'dark',
         contrast = 'high',
       }
