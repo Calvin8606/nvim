@@ -430,7 +430,16 @@ require('lazy').setup({
       -- Automatically install LSPs and related tools to stdpath for Neovim
       -- Mason must be loaded before its dependents so we need to set it up here.
       -- NOTE: `opts = {}` is the same as calling `require('mason').setup({})`
-      { 'mason-org/mason.nvim', opts = {} },
+      {
+        'mason-org/mason.nvim',
+        opts = {
+          -- Adds roslyn
+          registries = {
+            'github:mason-org/mason-registry',
+            'github:Crashdummyy/mason-registry',
+          },
+        },
+      },
       'mason-org/mason-lspconfig.nvim',
       'WhoIsSethDaniel/mason-tool-installer.nvim',
 
@@ -445,7 +454,14 @@ require('lazy').setup({
           },
         },
       },
-
+      -- Rosyln C# Lsp
+      {
+        'seblyng/roslyn.nvim',
+        ---@module 'roslyn.config'
+        opts = {
+          -- your configuration comes here; leave empty for default settings
+        },
+      },
       -- Allows extra capabilities provided by blink.cmp
       'saghen/blink.cmp',
     },
@@ -846,9 +862,31 @@ require('lazy').setup({
   -- change the command in the config to whatever the name of that colorscheme is.
   --
   -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
+  --  THEMES
   {
     'ellisonleao/gruvbox.nvim',
-    lazy = true,
+    lazy = false,
+    priority = 1000,
+    config = function()
+      require('gruvbox').setup {
+        terminal_colors = true,
+        undercurl = true,
+        underline = true,
+        transparent_mode = true,
+        contrast = 'hard',
+        dim_inactive = false,
+        bold = true,
+        italic = {
+          strings = true,
+          emphasis = true,
+          comments = true,
+          operators = false,
+          folds = true,
+        },
+      }
+
+      vim.cmd 'colorscheme gruvbox'
+    end,
   },
   {
     'daschw/leaf.nvim',
@@ -858,7 +896,7 @@ require('lazy').setup({
       require('leaf').setup {
         underlineStyle = 'underline',
         commentStyle = 'italic',
-        functionStyle = 'NONE',
+        functionStyle = 'bold',
         keywordStyle = 'italic',
         statementStyle = 'bold',
         typeStyle = 'NONE',
@@ -867,7 +905,7 @@ require('lazy').setup({
         theme = 'dark',
         contrast = 'high',
       }
-      vim.cmd 'colorscheme leaf'
+      --vim.cmd 'colorscheme leaf'
     end,
   },
   -- Highlight todo, notes, etc in comments
@@ -949,7 +987,7 @@ require('lazy').setup({
   require 'kickstart.plugins.indent_line',
   -- require 'kickstart.plugins.lint',
   require 'kickstart.plugins.autopairs',
-  -- require 'kickstart.plugins.neo-tree',
+  require 'kickstart.plugins.neo-tree',
   require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps
 
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
