@@ -657,6 +657,22 @@ require('lazy').setup({
             },
           },
         },
+        zls = {
+          automatic_installation = false,
+          cmd = { 'C:/Users/calvi/scoop/shims/zls.exe' },
+          filetype = { 'zig' },
+          settings = {
+            zls = {
+              enable_inlay_hints = true,
+              enable_snippets = true,
+            },
+          },
+        },
+        ols = {
+          cmd = { 'C:/Users/calvi/ols/ols.exe' },
+          automatic_installation = false,
+        },
+
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
         -- Some languages (like typescript) have entire language plugins that can be useful:
