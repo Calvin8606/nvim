@@ -410,6 +410,48 @@ require('lazy').setup({
     end,
   },
 
+-- SPACING
+-- Indentation settings by filetype
+vim.api.nvim_create_augroup("IndentSettings", { clear = true })
+
+-- 2 spaces
+vim.api.nvim_create_autocmd("FileType", {
+  group = "IndentSettings",
+  pattern = {
+    "javascript", "javascriptreact", "typescript", "typescriptreact",
+    "json", "jsonc", "html", "css", "scss", "yaml", "yml",
+    "vue", "svelte", "markdown", "xml", "qml"
+  },
+  callback = function()
+    vim.opt_local.tabstop = 2
+    vim.opt_local.shiftwidth = 2
+    vim.opt_local.expandtab = true
+  end,
+})
+
+-- 4 spaces
+vim.api.nvim_create_autocmd("FileType", {
+  group = "IndentSettings",
+  pattern = {
+    "python", "rust", "c", "cpp", "java", "go",
+    "lua", "bash", "sh", "toml", "vim"
+  },
+  callback = function()
+    vim.opt_local.tabstop = 4
+    vim.opt_local.shiftwidth = 4
+    vim.opt_local.expandtab = true
+  end,
+})
+
+-- Tabs (Makefiles require real tabs)
+vim.api.nvim_create_autocmd("FileType", {
+  group = "IndentSettings",
+  pattern = "make",
+  callback = function()
+    vim.opt_local.expandtab = false
+  end,
+})
+
   -- LSP Plugins
   {
     -- `lazydev` configures Lua LSP for your Neovim config, runtime and plugins
@@ -967,7 +1009,7 @@ require('lazy').setup({
   { -- Highlight, edit, and navigate code
     'nvim-treesitter/nvim-treesitter',
     build = ':TSUpdate',
-    main = 'nvim-treesitter.configs', -- Sets main module to use for opts
+    main = 'nvim-treesitter', -- Sets main module to use for opts
     -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
     opts = {
       ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' },
