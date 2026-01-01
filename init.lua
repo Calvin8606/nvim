@@ -646,7 +646,7 @@ require('lazy').setup({
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
       local servers = {
         -- clangd = {},
-        -- gopls = {},
+        gopls = {},
         -- pyright = {},
         rust_analyzer = {
           settings = {
@@ -695,6 +695,13 @@ require('lazy').setup({
               -- diagnostics = { disable = { 'missing-fields' } },
             },
           },
+        },
+        html = { filetypes = { 'html', 'twig', 'hbs' } },
+        cssls = {}, -- CSS
+        ts_ls = {}, -- JavaScript and TypeScript
+        marksman = {}, -- Markdown LSP
+        basedpyright = {
+          enable_inlay_hints = true,
         },
       }
 
@@ -771,6 +778,17 @@ require('lazy').setup({
         --
         -- You can use 'stop_after_first' to run the first available formatter from the list
         -- javascript = { "prettierd", "prettier", stop_after_first = true },
+      },
+    },
+  },
+
+  { -- ts-autotag
+    'windwp/nvim-ts-autotag',
+    opts = {
+      opts = {
+        enable_close = true, -- Auto close tags
+        enable_rename = true, -- Auto rename pairs of tags
+        enable_close_on_slash = false, -- Auto close on trailing </
       },
     },
   },
@@ -1040,15 +1058,28 @@ require('lazy').setup({
 
 -- SPACING
 -- Indentation settings by filetype
-vim.api.nvim_create_augroup("IndentSettings", { clear = true })
+vim.api.nvim_create_augroup('IndentSettings', { clear = true })
 
 -- 2 spaces
-vim.api.nvim_create_autocmd("FileType", {
-  group = "IndentSettings",
+vim.api.nvim_create_autocmd('FileType', {
+  group = 'IndentSettings',
   pattern = {
-    "javascript", "javascriptreact", "typescript", "typescriptreact",
-    "json", "jsonc", "html", "css", "scss", "yaml", "yml",
-    "vue", "svelte", "markdown", "xml", "qml"
+    'javascript',
+    'javascriptreact',
+    'typescript',
+    'typescriptreact',
+    'json',
+    'jsonc',
+    'html',
+    'css',
+    'scss',
+    'yaml',
+    'yml',
+    'vue',
+    'svelte',
+    'markdown',
+    'xml',
+    'qml',
   },
   callback = function()
     vim.opt_local.tabstop = 2
@@ -1058,11 +1089,22 @@ vim.api.nvim_create_autocmd("FileType", {
 })
 
 -- 4 spaces
-vim.api.nvim_create_autocmd("FileType", {
-  group = "IndentSettings",
+vim.api.nvim_create_autocmd('FileType', {
+  group = 'IndentSettings',
   pattern = {
-    "python", "rust", "c", "cpp", "java", "go",
-    "lua", "bash", "sh", "toml", "vim"
+    'python',
+    'rust',
+    'c',
+    'cpp',
+    'java',
+    'go',
+    'lua',
+    'bash',
+    'sh',
+    'toml',
+    'vim',
+    'conf',
+    'kdl',
   },
   callback = function()
     vim.opt_local.tabstop = 4
@@ -1072,15 +1114,13 @@ vim.api.nvim_create_autocmd("FileType", {
 })
 
 -- Tabs (Makefiles require real tabs)
-vim.api.nvim_create_autocmd("FileType", {
-  group = "IndentSettings",
-  pattern = "make",
+vim.api.nvim_create_autocmd('FileType', {
+  group = 'IndentSettings',
+  pattern = 'make',
   callback = function()
     vim.opt_local.expandtab = false
   end,
 })
-
-
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
