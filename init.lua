@@ -741,6 +741,40 @@ require('lazy').setup({
     end,
   },
 
+  -- PLUGINS
+
+  -- Rust-Analyzer Auto Configuration
+  {
+    'mrcjkb/rustaceanvim',
+    lazy = false,
+    config = function()
+      local cfg = require 'rustaceanvim.config'
+
+      -- Where Mason installs codelldb
+      local mason_codelldb = vim.fn.stdpath 'data' .. '/mason/packages/codelldb/extension/'
+
+      local codelldb_path = mason_codelldb .. 'adapter/codelldb'
+
+      -- You’re on Linux:
+      local liblldb_path = mason_codelldb .. 'lldb/lib/liblldb.so'
+      -- macOS:  local liblldb_path = mason_codelldb .. 'lldb/lib/liblldb.dylib'
+      -- Windows: local liblldb_path = mason_codelldb .. 'lldb\\bin\\liblldb.dll'
+
+      vim.g.rustaceanvim = {
+        dap = {
+          adapter = cfg.get_codelldb_adapter(codelldb_path, liblldb_path),
+        },
+      }
+    end,
+  },
+  -- Rust Crate toml Updating Plugin
+  {
+    'saecki/crates.nvim',
+    tag = 'stable',
+    config = function()
+      require('crates').setup()
+    end,
+  },
   { -- Autoformat
     'stevearc/conform.nvim',
     event = { 'BufWritePre' },
@@ -1038,7 +1072,7 @@ require('lazy').setup({
   --
   require 'kickstart.plugins.debug',
   require 'kickstart.plugins.indent_line',
-  -- require 'kickstart.plugins.lint',
+  require 'kickstart.plugins.lint',
   require 'kickstart.plugins.autopairs',
   require 'kickstart.plugins.neo-tree',
   require 'kickstart.plugins.gitsigns', -- adds gitsigns recommend keymaps

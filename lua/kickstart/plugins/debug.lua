@@ -144,5 +144,44 @@ return {
         detached = vim.fn.has 'win32' == 0,
       },
     }
+
+    ---------------------------------------------------------------------------
+    -- C / C++ / Rust configuration (codelldb)
+    ---------------------------------------------------------------------------
+
+    -- Adapter
+    dap.adapters.codelldb = {
+      type = 'server',
+      port = '${port}',
+      executable = {
+        command = 'lldb',
+        args = { '--port', '${port}' },
+      },
+    }
+
+    -- Shared config for C, C++, Rust
+    local debug_template = {
+      {
+        name = 'Launch file',
+        type = 'codelldb',
+        request = 'launch',
+        program = function()
+          return vim.fn.input('Path to executable: ', vim.fn.getcwd() .. '/', 'file')
+        end,
+        cwd = '${workspaceFolder}',
+        stopOnEntry = false,
+        args = {},
+      },
+      {
+        name = 'Attach to process',
+        type = 'codelldb',
+        request = 'attach',
+        pid = require('dap.utils').pick_process,
+        cwd = '${workspaceFolder}',
+      },
+    }
+
+    dap.configurations.cpp = debug_template
+    dap.configurations.c = debug_template
   end,
 }
