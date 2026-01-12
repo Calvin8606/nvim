@@ -645,7 +645,7 @@ require('lazy').setup({
       --  - settings (table): Override the default settings passed when initializing the server.
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
       local servers = {
-        -- clangd = {},
+        clangd = {},
         gopls = {},
         -- pyright = {},
         rust_analyzer = {
@@ -658,8 +658,6 @@ require('lazy').setup({
           },
         },
         zls = {
-          automatic_installation = false,
-          cmd = { 'C:/Users/calvi/scoop/shims/zls.exe' },
           filetype = { 'zig' },
           settings = {
             zls = {
@@ -718,7 +716,33 @@ require('lazy').setup({
       --
       -- You can add other tools here that you want Mason to install
       -- for you, so that they are available from within Neovim.
-      local ensure_installed = vim.tbl_keys(servers or {})
+
+      local mason_excluded = {
+        nushell = true,
+      }
+
+      servers.nushell = {
+        cmd = { 'nu', '--lsp' },
+        filetypes = { 'nu' },
+      }
+
+      local ensure_installed = {}
+
+      -- Any LSP not managed by mason
+      for server_name, _ in pairs(servers) do
+        if not mason_excluded[server_name] then
+          table.insert(ensure_installed, server_name)
+        end
+
+        -- Setup Server in Lspconfig
+        local server = servers[server_name] or {}
+        server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
+
+        -- Register config with the new API
+        vim.lsp.config(server_name, server)
+        -- Enable the server
+        vim.lsp.enable(server_name)
+      end
       vim.list_extend(ensure_installed, {
         'stylua', -- Used to format Lua code
       })
@@ -734,7 +758,11 @@ require('lazy').setup({
             -- by the server configuration above. Useful when disabling
             -- certain features of an LSP (for example, turning off formatting for ts_ls)
             server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
-            require('lspconfig')[server_name].setup(server)
+
+            -- Register config with the new API
+            vim.lsp.config(server_name, server)
+            -- Enable the server
+            vim.lsp.enable(server_name)
           end,
         },
       }
@@ -766,6 +794,19 @@ require('lazy').setup({
         },
       }
     end,
+  },
+
+  -- Better LuaLS config
+  {
+    'folke/lazydev.nvim',
+    ft = 'lua', -- only load on lua files
+    opts = {
+      library = {
+        -- See the configuration section for more details
+        -- Load luvit types when the `vim.uv` word is found
+        { path = '${3rd}/luv/library', words = { 'vim%.uv' } },
+      },
+    },
   },
   -- Rust Crate toml Updating Plugin
   {
@@ -951,50 +992,76 @@ require('lazy').setup({
   -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
   --  THEMES
   {
-    'ellisonleao/gruvbox.nvim',
+    'everviolet/nvim',
+    name = 'evergarden',
     lazy = false,
-    priority = 1000,
+    priority = 1000, -- Colorscheme plugin is loaded first before any other plugins
     config = function()
-      require('gruvbox').setup {
-        terminal_colors = true,
-        undercurl = true,
-        underline = true,
-        transparent_mode = true,
-        contrast = 'hard',
-        dim_inactive = false,
-        bold = true,
-        italic = {
-          strings = true,
-          emphasis = true,
-          comments = true,
-          operators = false,
-          folds = true,
+      require('evergarden').setup {
+        theme = {
+          variant = 'spring', -- 'winter'|'fall'|'spring'|'summer'
+          accent = 'subtext0',
+        },
+        editor = {
+          transparent_background = true,
+          sign = { color = 'base' },
+          float = {
+            color = 'base',
+            solid_border = false,
+          },
+          completion = {
+            color = 'base',
+          },
         },
       }
-
-      vim.cmd 'colorscheme gruvbox'
+      vim.cmd 'colorscheme evergarden'
     end,
   },
-  {
-    'daschw/leaf.nvim',
-    lazy = false,
-    priority = 1000,
-    config = function()
-      require('leaf').setup {
-        underlineStyle = 'underline',
-        commentStyle = 'italic',
-        functionStyle = 'bold',
-        keywordStyle = 'italic',
-        statementStyle = 'bold',
-        typeStyle = 'NONE',
-        variablebuiltinStyle = 'italic',
-        transparent = true,
-        theme = 'dark',
-        contrast = 'high',
-      }
-      --vim.cmd 'colorscheme leaf'
-    end,
-  },
+  -- {
+  --   'ellisonleao/gruvbox.nvim',
+  --   lazy = false,
+  --   priority = 1000,
+  --   config = function()
+  --     require('gruvbox').setup {
+  --       terminal_colors = true,
+  --       undercurl = true,
+  --       underline = true,
+  --       transparent_mode = true,
+  --       contrast = 'hard',
+  --       dim_inactive = false,
+  --       bold = true,
+  --       italic = {
+  --         strings = true,
+  --         emphasis = true,
+  --         comments = true,
+  --         operators = false,
+  --         folds = true,
+  --       },
+  --     }
+  --
+  --     vim.cmd 'colorscheme gruvbox'
+  --   end,
+  -- },
+  -- {
+  --   'daschw/leaf.nvim',
+  --   lazy = false,
+  --   priority = 1000,
+  --   config = function()
+  --     require('leaf').setup {
+  --       underlineStyle = 'underline',
+  --       commentStyle = 'italic',
+  --       functionStyle = 'bold',
+  --       keywordStyle = 'italic',
+  --       statementStyle = 'bold',
+  --       typeStyle = 'NONE',
+  --       variablebuiltinStyle = 'italic',
+  --       transparent = true,
+  --       theme = 'dark',
+  --       contrast = 'high',
+  --     }
+  --     --vim.cmd 'colorscheme leaf'
+  --   end,
+  -- },
   -- Highlight todo, notes, etc in comments
   { 'folke/todo-comments.nvim', event = 'VimEnter', dependencies = { 'nvim-lua/plenary.nvim' }, opts = { signs = false } },
 
@@ -1035,30 +1102,84 @@ require('lazy').setup({
       --  Check out: https://github.com/echasnovski/mini.nvim
     end,
   },
-  { -- Highlight, edit, and navigate code
+  -- Highlight, edit, and navigate code
+  {
     'nvim-treesitter/nvim-treesitter',
-    build = ':TSUpdate',
-    main = 'nvim-treesitter', -- Sets main module to use for opts
-    -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
-    opts = {
-      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' },
-      -- Autoinstall languages that are not installed
-      auto_install = true,
-      highlight = {
-        enable = true,
-        -- Some languages depend on vim's regex highlighting system (such as Ruby) for indent rules.
-        --  If you are experiencing weird indenting issues, add the language to
-        --  the list of additional_vim_regex_highlighting and disabled languages for indent.
-        additional_vim_regex_highlighting = { 'ruby' },
-      },
-      indent = { enable = true, disable = { 'ruby' } },
-    },
-    -- There are additional nvim-treesitter modules that you can use to interact
-    -- with nvim-treesitter. You should go explore a few and see what interests you:
-    --
-    --    - Incremental selection: Included, see `:help nvim-treesitter-incremental-selection-mod`
-    --    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
-    --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
+    checkout = 'main',
+    build = 'TSUpdate',
+    event = { 'BufReadPost', 'BufNewFile' },
+    config = function()
+      local ts_ok, treesitter = pcall(require, 'nvim-treesitter')
+      if not ts_ok then
+        return
+      end
+
+      local tsc_ok, ts_config = pcall(require, 'nvim-treesitter.config')
+      if not tsc_ok then
+        return
+      end
+
+      -- Where parsers/queries go
+      treesitter.setup {
+        install_dir = vim.fn.stdpath 'data' .. '/site',
+      }
+
+      local ensure_installed = {
+        'bash',
+        'c',
+        'lua',
+        'vim',
+        'vimdoc',
+        'markdown',
+        'markdown_inline',
+        'query',
+        'nu',
+        'zig',
+      }
+
+      local installed = ts_config.get_installed 'parsers'
+      local missing = vim
+        .iter(ensure_installed)
+        :filter(function(p)
+          return not vim.tbl_contains(installed, p)
+        end)
+        :totable()
+
+      if #missing > 0 then
+        treesitter.install(missing)
+      end
+
+      -- Auto-start TS for buffers that have a parser available
+      vim.api.nvim_create_autocmd({ 'FileType' }, {
+        desc = 'Start Treesitter for buffer',
+        callback = function(ev)
+          local bufnr = ev.buf
+          local ft = vim.bo[bufnr].filetype
+          if ft == '' then
+            return
+          end
+
+          local lang = vim.treesitter.language.get_lang(ft)
+          if not lang then
+            return
+          end
+
+          -- Only start if this parser exists in TS registry
+          local ok_parsers, parsers = pcall(require, 'nvim-treesitter.parsers')
+          if not ok_parsers or not parsers[lang] then
+            return
+          end
+
+          -- Try to ensure parser exists (non-blocking)
+          pcall(function()
+            treesitter.install { lang }
+          end)
+
+          -- Start highlighting/parsing
+          pcall(vim.treesitter.start, bufnr, lang)
+        end,
+      })
+    end,
   },
 
   -- The following comments only work if you have downloaded the kickstart repo, not just copy pasted the
