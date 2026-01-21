@@ -1,7 +1,7 @@
 --[[
 
     If you don't know anything about Lua, I recommend taking some time to read through
-    a guide. One possible example which will only take 10-15 minutes:
+
       - https://learnxinyminutes.com/docs/lua/
 
     After understanding a bit more about Lua, you can use `:help lua-guide` as a
@@ -102,6 +102,9 @@ vim.opt.listchars = { tab = '» ', trail = '·', nbsp = '␣' }
 
 -- Preview substitutions live, as you type!
 vim.o.inccommand = 'split'
+
+-- Cursor Gui
+vim.opt.guicursor = ''
 
 -- Show which line your cursor is on
 vim.o.cursorline = false
@@ -666,10 +669,8 @@ require('lazy').setup({
             },
           },
         },
-        ols = {
-          cmd = { 'C:/Users/calvi/ols/ols.exe' },
-          automatic_installation = false,
-        },
+        bashls = {},
+        ols = {},
 
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
@@ -681,7 +682,6 @@ require('lazy').setup({
         --
 
         lua_ls = {
-          -- cmd = { ... },
           -- filetypes = { ... },
           -- capabilities = {},
           settings = {
@@ -690,14 +690,16 @@ require('lazy').setup({
                 callSnippet = 'Replace',
               },
               -- You can toggle below to ignore Lua_LS's noisy `missing-fields` warnings
-              -- diagnostics = { disable = { 'missing-fields' } },
+              diagnostics = { globals = { 'vim', 'require' } },
+              workspace = {
+                library = vim.api.nvim_get_runtime_file('', true),
+              },
             },
           },
         },
         html = { filetypes = { 'html', 'twig', 'hbs' } },
         cssls = {}, -- CSS
         ts_ls = {}, -- JavaScript and TypeScript
-        marksman = {}, -- Markdown LSP
         basedpyright = {
           enable_inlay_hints = true,
         },
@@ -717,14 +719,7 @@ require('lazy').setup({
       -- You can add other tools here that you want Mason to install
       -- for you, so that they are available from within Neovim.
 
-      local mason_excluded = {
-        nushell = true,
-      }
-
-      servers.nushell = {
-        cmd = { 'nu', '--lsp' },
-        filetypes = { 'nu' },
-      }
+      local mason_excluded = {}
 
       local ensure_installed = {}
 
@@ -909,12 +904,12 @@ require('lazy').setup({
           -- `friendly-snippets` contains a variety of premade snippets.
           --    See the README about individual language/framework/plugin snippets:
           --    https://github.com/rafamadriz/friendly-snippets
-          -- {
-          --   'rafamadriz/friendly-snippets',
-          --   config = function()
-          --     require('luasnip.loaders.from_vscode').lazy_load()
-          --   end,
-          -- },
+          {
+            'rafamadriz/friendly-snippets',
+            config = function()
+              require('luasnip.loaders.from_vscode').lazy_load()
+            end,
+          },
         },
         opts = {},
       },
@@ -990,7 +985,7 @@ require('lazy').setup({
   -- change the command in the config to whatever the name of that colorscheme is.
   --
   -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
-  --  THEMES
+  --  Themes
   {
     'everviolet/nvim',
     name = 'evergarden',
@@ -1000,19 +995,33 @@ require('lazy').setup({
       require('evergarden').setup {
         theme = {
           variant = 'spring', -- 'winter'|'fall'|'spring'|'summer'
-          accent = 'subtext0',
+          accent = 'green',
         },
         editor = {
           transparent_background = true,
-          sign = { color = 'base' },
+          sign = { color = 'none' },
           float = {
-            color = 'base',
+            color = 'mantle',
             solid_border = false,
           },
           completion = {
-            color = 'base',
+            color = 'surface0',
           },
         },
+        style = {
+          tabline = { 'reverse' },
+          search = { 'italic', 'reverse' },
+          incsearch = { 'italic', 'reverse' },
+          types = { 'italic' },
+          keyword = { 'italic' },
+          comment = { 'italic' },
+          diagnostics = {},
+          disable_styles = {},
+          spell = {},
+          notes = {},
+        },
+        overrides = {},
+        color_overrides = {},
       }
       vim.cmd 'colorscheme evergarden'
     end,
@@ -1130,8 +1139,6 @@ require('lazy').setup({
         'lua',
         'vim',
         'vimdoc',
-        'markdown',
-        'markdown_inline',
         'query',
         'nu',
         'zig',
