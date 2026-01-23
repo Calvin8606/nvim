@@ -129,8 +129,6 @@ return {
         documentation = { auto_show = true },
         trigger = { prefetch_on_insert = true },
       },
-      chartoggle = { enabled = true },
-      tree = { enabled = true },
       snippets = { preset = 'luasnip' },
       sources = { default = { 'lsp', 'path', 'snippets', 'buffer' } },
       keymap = { preset = 'default' },
